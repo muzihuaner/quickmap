@@ -1,77 +1,152 @@
 <!DOCTYPE html>
-<html>
+<html lang="">
 <head>
-  <meta charset="utf-8">
-  <title>快点卫星地图-Google Earth高清卫星地图-谷歌地图-地球在线</title>
-  <meta name="keywords" content="地图工具,地图搜索,地图测量,卫星地图,高清地图,谷歌地图,google地图,google map,谷歌卫星地图,在线地图,街景地图,直播地球">
-  <meta name="Description"
-        content="从卫星上鸟瞰地球，感受前所未有的视觉冲击。采用Google Earth Maps等开放接口技术构建，简便操作，轻松拖动、缩放地图画面。多源卫星地图与城市电子地图实时切换，游历世界风景名胜，分享旅行景点地图地标。">
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width,height=device-height,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
+          name="viewport"/>
+    <meta http-equiv="default-style" content="on">
+    <link rel="preconnect" href="https://map-drcn.platform.dbankcloud.com/" crossorigin>
+    <link rel="preconnect" href="https://maprastertile-drcn.dbankcdn.cn/" crossorigin>
+    <link rel="preconnect" href="https://mapapi.cloud.huawei.com/" crossorigin>
+    <link href="https://cdnjs.loli.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <title>快点地图-QuickMap-欢哥科技</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://mapapi.cloud.huawei.com/mapjs/v1/api/js?callback=initMap&key=CV8Aw1EA9pku7HPWfUaUNManWlstMIzk6zbNfHXZ9NFJrOUx1QDTIqF2U2oNT70nwVh3wVJTVDz0GFdKFwaOnyKwWdOV"></script>
+    <!--    <script src="https://mapapi.cloud.huawei.com/mapjs/v1/api/js?callback=initMap&key=DAEDANitav6P7Q0lWzCzKkLErbrJG4kS1u%2FCpEe5ZyxW5u0nSkb40bJ%2BYAugRN03fhf0BszLS1rCrzAogRHDZkxaMrloaHPQGO6LNg%3D%3D"></script>-->
 
-  <!--  <script src="https://cdn.jsdmirror.com/npm/sweetalert2@11"></script>-->
-
-  <meta name="author" content="欢哥科技">
-
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
-  <link rel="shortcut icon" href="https://cdn.jsdmirror.com/gh/muzihuaner/huancdn/img/favicon.ico" type="image/x-icon" />
-  <style>
-    body,
-    html {
-      margin: 0; /* 去除页面默认的外边距 */
-      padding: 0; /* 去除页面默认的内边距 */
-      height: 100%; /* 确保页面高度占满视口 */
-      width: 100%; /* 确保页面宽度占满视口 */
-      overflow-x: hidden; /* 隐藏水平滚动条（可选，根据需求） */
-      font-family: Arial, sans-serif; /* 设置默认字体（可根据喜好更改） */
-      font-size: 16px; /* 设置默认字体大小（可根据喜好更改） */
-      line-height: 1.5; /* 设置行高（可根据喜好更改） */
-      color: #333; /* 设置默认文本颜色（可根据喜好更改） */
-      background-color: #fff; /* 设置默认背景颜色（可根据喜好更改） */
-    }
-    #myIframe{
-      border: none;
-    }
-    #fullscreenButton{
-      position: fixed;
-      right: 50px;
-      top: 20px;
-    }
-  </style>
 </head>
-<body> <iframe id="myIframe" width="100%" src="//huawei.com.tw/earth/"></iframe>
-<button id="fullscreenButton">全屏</button>
 
+<body>
+<div id="map"></div>
+
+
+<div class="container">
+    <input type="text" placeholder="搜你想搜!" id="searchPosition">
+    <div id="iconfont_search" class="iconfont_search" onclick="searchByTextBtnClick()"><i class="fa fa-search"
+                                                                                          aria-hidden="true"></i></div>
+</div>
 <script>
-  // 获取 iframe 元素
-  const iframe = document.getElementById('myIframe');
+    // 声明在全局作用域
+    let map;
+    var directionsService;
+    var directionsRenderer;
+    var markerOrigin, markerDestination;
+    // 创建路径规划请求体
+    var DirectionsRequest = {};
+    DirectionsRequest.origin = {
+        lat: 48.86,
+        lng: 2.36
+    };
+    DirectionsRequest.destination = {
+        lat: 49.18,
+        lng: 0.39
+    };
 
-  // 当窗口大小改变时，调整 iframe 高度
-  window.addEventListener('resize', function () {
-    iframe.style.height = window.innerHeight + 'px';
-  });
+    function initMap() {
+        directionsService = new HWMapJsSDK.HWDirectionsService();
+        directionsRenderer = new HWMapJsSDK.HWDirectionsRenderer();
 
-  // 初始设置 iframe 高度为屏幕高度
-  iframe.style.height = window.innerHeight + 'px';
+        var mapOptions = {};
+        mapOptions.center = {lat: 39.9, lng: 116.3};
+        mapOptions.zoom = 8;
+        mapOptions.language = 'ZH';
+        // 设置显示比例尺
+        mapOptions.scaleControl = true;
+        mapOptions.scaleControlOptions = {
+            // 设置比例尺单位为英制英寸
+            units: "imperial"
+        };
+        // 设置显示平移按钮
+        mapOptions.navigationControl = true;
+        // 设置显示缩放条
+        mapOptions.zoomSlider = true;
+        // 设置显示指北针
+        mapOptions.rotateControl = true;
+        // 设置显示我的位置按钮
+        mapOptions.locationControl = true;
+        // 设置显示版权
+        mapOptions.copyrightControl = true;
+        // 设置版权内容
+        // mapOptions.copyrightControlOptions = {value: "<div  style='position: fixed;right: 10px;bottom:32px;'><font>快点地图 © </font><a href='https://developer.huawei.com/consumer/cn/doc/development/HMS-Guides/hms-map-js-base-map'>HMS Map</a><font></font></div>"}
 
-  // 获取全屏按钮
-  const fullscreenButton = document.getElementById('fullscreenButton');
+        // 只创建一次地图实例并赋值给全局变量 map
+        map = new HWMapJsSDK.HWMap(document.getElementById('map'), mapOptions);
 
-  // 点击全屏按钮时触发全屏操作
-  fullscreenButton.addEventListener('click', function () {
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen();
-    } else if (document.documentElement.mozRequestFullScreen) {
-      document.documentElement.mozRequestFullScreen();
-    } else if (document.documentElement.webkitRequestFullscreen) {
-      document.documentElement.webkitRequestFullscreen();
-    } else if (document.documentElement.msRequestFullscreen) {
-      document.documentElement.msRequestFullscreen();
+
+        var searchBoxInput = document.getElementById('searchPosition');
+        var iconfont_search = document.getElementById('iconfont_search');
+        // 创建搜索框参数
+        var acOptions = {
+            location: {
+                lat: 48.856613,
+                lng: 2.352222
+            },
+            radius: 10000,
+            customHandler: callback
+        };
+        var autocomplete;
+        // 获取input元素
+        // 创建HWAutocomplete对象，并设置侦听函数
+        autocomplete = new HWMapJsSDK.HWAutocomplete(searchBoxInput, acOptions);
+        autocomplete.addListener('site_changed', printSites);
+        // 处理搜索出来的值
+        // index当前搜索数所在下标
+        // data当前搜索返回内容
+        // name带strong标签的关键字，
+        function callback(index, data, name) {
+            // console.log(index, data, name);
+            var div
+            div = document.createElement('div');
+            div.innerHTML = name;
+            return div;
+        }
+
+        // // 侦听函数
+        function printSites() {
+            console.log("in print sites...");
+            var site = autocomplete.getSite();
+            var results = "Autocomplete Results:\n";
+            var str = "Name=" + site.name + "\n"
+                + "SiteID=" + site.siteId + "\n"
+                + "Latitude=" + site.location.lat + "\n"
+                + "Longitude=" + site.location.lng + "\n"
+                + "Address=" + site.formatAddress + "\n";
+            results = results + str;
+        }
+
     }
-  });
+
+    function searchByTextBtnClick() {
+        var text = document.getElementById('searchPosition').value;
+        var siteService;
+        // 初始化HWSiteService对象
+        siteService = new HWMapJsSDK.HWSiteService();
+        // 初始化请求参数对象
+
+        var request = {
+            query: text
+        };
+
+        // 调用搜索接口，result为返回结果，status为返回状态
+        siteService.searchByText(request, function (result, status) {
+            if (status === '0') {
+                for (var i = 0; i < result.sites.length; i++) {
+                    // 在地图上添加标记
+                    var marker = new HWMapJsSDK.HWMarker({
+                        map: map,
+                        position: {lat: result.sites[i].location.lat, lng: result.sites[i].location.lng},
+                        label: result.sites[i].name
+                    });
+                }
+                // 设置地图的中心点
+                map.setCenter({lat: result.sites[0].location.lat, lng: result.sites[0].location.lng});
+            }
+        });
+    }
+
+
 </script>
-<!--<script>-->
-<!--  Swal.fire('使用说明：\n本站服务来自SpeedTest,免费提供网速测试服务，加载可能有点慢，请耐心等待哦！')-->
-
-<!--</script>-->
-
+<script async disable-devtool-auto src="https://registry.npmmirror.com/disable-devtool/0.3.6/files/disable-devtool.min.js"></script>
 </body>
+
 </html>
