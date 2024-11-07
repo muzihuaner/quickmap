@@ -10,7 +10,66 @@
     <link rel="preconnect" href="https://mapapi.cloud.huawei.com/" crossorigin>
     <link href="https://cdnjs.loli.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <title>快点地图-QuickMap-欢哥科技</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        html,body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        strong {
+            color: red;
+        }
+
+        .container {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+        }
+
+        #searchPosition {
+            width: 423px;
+            height: 45px;
+            box-sizing: border-box;
+            outline: none;
+            border: 0;
+            text-indent: 20px;
+            border-radius: 2px;
+            box-shadow: 0px -2px 5px rgb(219, 218, 218);
+        }
+
+        .iconfont_search {
+            background: url('/') no-repeat 0 -72px #ce1d2c;
+            background-size: cover;
+            width: 57px;
+            height: 45px;
+            border-radius: 2px;
+            cursor: pointer;
+            position: absolute;
+            right: -57px;
+            top: 0;
+            text-align: center;
+        }
+
+        .iconfont_search i {
+            color: aliceblue;
+            font-size: 30px;
+            padding: 8px;
+        }
+
+        @media only screen and (max-width: 768px) {
+            #searchPosition {
+                width: 223px;
+            }
+        }
+    </style>
     <script src="https://mapapi.cloud.huawei.com/mapjs/v1/api/js?callback=initMap&key=CV8Aw1EA9pku7HPWfUaUNManWlstMIzk6zbNfHXZ9NFJrOUx1QDTIqF2U2oNT70nwVh3wVJTVDz0GFdKFwaOnyKwWdOV"></script>
     <!--    <script src="https://mapapi.cloud.huawei.com/mapjs/v1/api/js?callback=initMap&key=DAEDANitav6P7Q0lWzCzKkLErbrJG4kS1u%2FCpEe5ZyxW5u0nSkb40bJ%2BYAugRN03fhf0BszLS1rCrzAogRHDZkxaMrloaHPQGO6LNg%3D%3D"></script>-->
 
