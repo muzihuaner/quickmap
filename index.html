@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="">
+
 <head>
-    <meta charset="UTF-8"/>
+    <meta charset="UTF-8" />
     <meta content="width=device-width,height=device-height,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
-          name="viewport"/>
+        name="viewport" />
     <meta http-equiv="default-style" content="on">
     <link rel="preconnect" href="https://map-drcn.platform.dbankcloud.com/" crossorigin>
     <link rel="preconnect" href="https://maprastertile-drcn.dbankcdn.cn/" crossorigin>
@@ -11,7 +12,8 @@
     <link href="https://cdnjs.loli.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <title>快点地图-QuickMap-欢哥科技</title>
     <style>
-        html,body {
+        html,
+        body {
             margin: 0;
             padding: 0;
             height: 100%;
@@ -41,7 +43,7 @@
             align-items: center;
             background: white;
             border-radius: 4px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
             padding: 5px;
         }
 
@@ -94,7 +96,7 @@
             right: 0;
             background: white;
             border-radius: 4px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
             max-height: 300px;
             overflow-y: auto;
             display: none;
@@ -135,7 +137,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .search-history {
@@ -145,7 +149,7 @@
             right: 0;
             background: white;
             border-radius: 4px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
             padding: 10px;
             display: none;
         }
@@ -173,220 +177,296 @@
             z-index: 1000;
             pointer-events: none;
         }
-        .leaflet-bottom a{
+
+        .leaflet-bottom a {
             color: black;
         }
+
         .leaflet-bottom {
             bottom: 0;
         }
+
         .leaflet-right {
             right: 5px;
         }
+
+        .location-button {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            z-index: 1000;
+            background: white;
+            border: none;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .location-button:hover {
+            background: #f5f5f5;
+        }
+
+        .location-button i {
+            color: #ce1d2c;
+            font-size: 20px;
+        }
+
         @media only screen and (max-width: 768px) {
             #searchPosition {
                 width: 223px;
             }
+
             .search-container {
                 width: 100%;
                 max-width: 300px;
             }
         }
     </style>
-    <script src="https://mapapi.cloud.huawei.com/mapjs/v1/api/js?callback=initMap&key=CV8Aw1EA9pku7HPWfUaUNManWlstMIzk6zbNfHXZ9NFJrOUx1QDTIqF2U2oNT70nwVh3wVJTVDz0GFdKFwaOnyKwWdOV"></script>
+    <script
+        src="https://mapapi.cloud.huawei.com/mapjs/v1/api/js?callback=initMap&key=CV8Aw1EA9pku7HPWfUaUNManWlstMIzk6zbNfHXZ9NFJrOUx1QDTIqF2U2oNT70nwVh3wVJTVDz0GFdKFwaOnyKwWdOV"></script>
     <!--    <script src="https://mapapi.cloud.huawei.com/mapjs/v1/api/js?callback=initMap&key=DAEDANitav6P7Q0lWzCzKkLErbrJG4kS1u%2FCpEe5ZyxW5u0nSkb40bJ%2BYAugRN03fhf0BszLS1rCrzAogRHDZkxaMrloaHPQGO6LNg%3D%3D"></script>-->
 
 </head>
 
 <body>
-<div id="map"></div>
-<div class="leaflet-bottom leaflet-right"><div class="leaflet-control-attribution leaflet-control">快点地图| Map data © <a href='https://developer.huawei.com/consumer/cn/doc/development/HMS-Guides/hms-map-js-base-map'>HMS Map</a></div></div>
-
-<div class="container">
-    <div class="search-container">
-        <input type="text" placeholder="搜你想搜!" id="searchPosition">
-        <div class="loading"></div>
-        <button class="clear-search" id="clearSearch">×</button>
-        <div id="iconfont_search" class="iconfont_search" onclick="searchByTextBtnClick()">
-            <i class="fa fa-search" aria-hidden="true"></i>
-        </div>
+    <div id="map"></div>
+    <div class="leaflet-bottom leaflet-right">
+        <div class="leaflet-control-attribution leaflet-control">快点地图| Map data © <a
+                href='https://developer.huawei.com/consumer/cn/doc/development/HMS-Guides/hms-map-js-base-map'>HMS
+                Map</a></div>
     </div>
-    <div class="search-results" id="searchResults"></div>
-    <div class="search-history" id="searchHistory"></div>
-</div>
-<script>
-    // 声明在全局作用域
-    let map;
-    var directionsService;
-    var directionsRenderer;
-    var markerOrigin, markerDestination;
-    var searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
-    var markers = [];
 
-    // 创建路径规划请求体
-    var DirectionsRequest = {
-        origin: {
-            lat: 48.86,
-            lng: 2.36
-        },
-        destination: {
-            lat: 49.18,
-            lng: 0.39
-        }
-    };
+    <div class="container">
+        <div class="search-container">
+            <input type="text" placeholder="搜你想搜!" id="searchPosition">
+            <div class="loading"></div>
+            <button class="clear-search" id="clearSearch">×</button>
+            <div id="iconfont_search" class="iconfont_search" onclick="searchByTextBtnClick()">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="search-results" id="searchResults"></div>
+        <div class="search-history" id="searchHistory"></div>
+    </div>
 
-    function initMap() {
-        directionsService = new HWMapJsSDK.HWDirectionsService();
-        directionsRenderer = new HWMapJsSDK.HWDirectionsRenderer();
+    <button class="location-button" onclick="getCurrentLocation()">
+        <i class="fa fa-location-arrow" aria-hidden="true"></i>
+    </button>
 
-        var mapOptions = {
-            center: {lat: 39.9, lng: 116.3},
-            zoom: 8,
-            language: 'ZH',
-            scaleControl: true,
-            scaleControlOptions: {
-                units: "metric"
+    <script>
+        // 声明在全局作用域
+        let map;
+        var directionsService;
+        var directionsRenderer;
+        var markerOrigin, markerDestination;
+        var searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+        var markers = [];
+
+        // 创建路径规划请求体
+        var DirectionsRequest = {
+            origin: {
+                lat: 48.86,
+                lng: 2.36
             },
-            navigationControl: true,
-            zoomSlider: true,
-            rotateControl: true,
-            locationControl: true,
-            copyrightControl: true
+            destination: {
+                lat: 49.18,
+                lng: 0.39
+            }
         };
 
-        map = new HWMapJsSDK.HWMap(document.getElementById('map'), mapOptions);
+        function initMap() {
+            directionsService = new HWMapJsSDK.HWDirectionsService();
+            directionsRenderer = new HWMapJsSDK.HWDirectionsRenderer();
 
-        setupSearchFunctionality();
-        updateSearchHistory();
-    }
+            var mapOptions = {
+                center: { lat: 39.9, lng: 116.3 },
+                zoom: 8,
+                language: 'ZH',
+                scaleControl: true,
+                scaleControlOptions: {
+                    units: "metric"
+                },
+                navigationControl: true,
+                zoomSlider: true,
+                rotateControl: true,
+                locationControl: true,
+                copyrightControl: true
+            };
 
-    function setupSearchFunctionality() {
-        const searchInput = document.getElementById('searchPosition');
-        const clearButton = document.getElementById('clearSearch');
-        const searchResults = document.getElementById('searchResults');
-        const searchHistory = document.getElementById('searchHistory');
+            map = new HWMapJsSDK.HWMap(document.getElementById('map'), mapOptions);
 
-        searchInput.addEventListener('focus', () => {
-            if (searchInput.value === '') {
-                searchHistory.style.display = 'block';
-            }
-        });
+            setupSearchFunctionality();
+            updateSearchHistory();
+        }
 
-        searchInput.addEventListener('blur', () => {
-            setTimeout(() => {
-                searchHistory.style.display = 'none';
-            }, 200);
-        });
+        function setupSearchFunctionality() {
+            const searchInput = document.getElementById('searchPosition');
+            const clearButton = document.getElementById('clearSearch');
+            const searchResults = document.getElementById('searchResults');
+            const searchHistory = document.getElementById('searchHistory');
 
-        searchInput.addEventListener('input', () => {
-            clearButton.style.display = searchInput.value ? 'block' : 'none';
-        });
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value === '') {
+                    searchHistory.style.display = 'block';
+                }
+            });
 
-        clearButton.addEventListener('click', () => {
-            searchInput.value = '';
-            clearButton.style.display = 'none';
-            searchResults.style.display = 'none';
-        });
-    }
+            searchInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    searchHistory.style.display = 'none';
+                }, 200);
+            });
 
-    function updateSearchHistory() {
-        const historyContainer = document.getElementById('searchHistory');
-        historyContainer.innerHTML = '';
-        
-        searchHistory.slice(0, 5).forEach((item, index) => {
-            const historyItem = document.createElement('div');
-            historyItem.className = 'history-item';
-            historyItem.innerHTML = `
+            searchInput.addEventListener('input', () => {
+                clearButton.style.display = searchInput.value ? 'block' : 'none';
+            });
+
+            clearButton.addEventListener('click', () => {
+                searchInput.value = '';
+                clearButton.style.display = 'none';
+                searchResults.style.display = 'none';
+            });
+        }
+
+        function updateSearchHistory() {
+            const historyContainer = document.getElementById('searchHistory');
+            historyContainer.innerHTML = '';
+
+            searchHistory.slice(0, 5).forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
                 <span onclick="searchHistoryItem('${item}')">${item}</span>
                 <span class="remove-history" onclick="removeHistoryItem(${index})">×</span>
             `;
-            historyContainer.appendChild(historyItem);
-        });
-    }
+                historyContainer.appendChild(historyItem);
+            });
+        }
 
-    function searchHistoryItem(query) {
-        document.getElementById('searchPosition').value = query;
-        searchByTextBtnClick();
-    }
+        function searchHistoryItem(query) {
+            document.getElementById('searchPosition').value = query;
+            searchByTextBtnClick();
+        }
 
-    function removeHistoryItem(index) {
-        searchHistory.splice(index, 1);
-        localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
-        updateSearchHistory();
-    }
-
-    function addToSearchHistory(query) {
-        if (!searchHistory.includes(query)) {
-            searchHistory.unshift(query);
-            if (searchHistory.length > 5) {
-                searchHistory.pop();
-            }
+        function removeHistoryItem(index) {
+            searchHistory.splice(index, 1);
             localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
             updateSearchHistory();
         }
-    }
 
-    function searchByTextBtnClick() {
-        const text = document.getElementById('searchPosition').value.trim();
-        if (!text) return;
-
-        const loading = document.querySelector('.loading');
-        const searchResults = document.getElementById('searchResults');
-        
-        loading.style.display = 'block';
-        searchResults.style.display = 'none';
-        clearMarkers();
-
-        var siteService = new HWMapJsSDK.HWSiteService();
-        var request = { query: text };
-
-        siteService.searchByText(request, function (result, status) {
-            loading.style.display = 'none';
-            
-            if (status === '0' && result.sites && result.sites.length > 0) {
-                addToSearchHistory(text);
-                displaySearchResults(result.sites);
-                map.setCenter({lat: result.sites[0].location.lat, lng: result.sites[0].location.lng});
-            } else {
-                searchResults.innerHTML = '<div class="search-result-item">未找到相关结果</div>';
-                searchResults.style.display = 'block';
+        function addToSearchHistory(query) {
+            if (!searchHistory.includes(query)) {
+                searchHistory.unshift(query);
+                if (searchHistory.length > 5) {
+                    searchHistory.pop();
+                }
+                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                updateSearchHistory();
             }
-        });
-    }
+        }
 
-    function displaySearchResults(sites) {
-        const searchResults = document.getElementById('searchResults');
-        searchResults.innerHTML = '';
-        
-        sites.forEach(site => {
-            const marker = new HWMapJsSDK.HWMarker({
-                map: map,
-                position: {lat: site.location.lat, lng: site.location.lng},
-                label: site.name
+        function searchByTextBtnClick() {
+            const text = document.getElementById('searchPosition').value.trim();
+            if (!text) return;
+
+            const loading = document.querySelector('.loading');
+            const searchResults = document.getElementById('searchResults');
+
+            loading.style.display = 'block';
+            searchResults.style.display = 'none';
+            clearMarkers();
+
+            var siteService = new HWMapJsSDK.HWSiteService();
+            var request = { query: text };
+
+            siteService.searchByText(request, function (result, status) {
+                loading.style.display = 'none';
+
+                if (status === '0' && result.sites && result.sites.length > 0) {
+                    addToSearchHistory(text);
+                    displaySearchResults(result.sites);
+                    map.setCenter({ lat: result.sites[0].location.lat, lng: result.sites[0].location.lng });
+                } else {
+                    searchResults.innerHTML = '<div class="search-result-item">未找到相关结果</div>';
+                    searchResults.style.display = 'block';
+                }
             });
-            markers.push(marker);
+        }
 
-            const resultItem = document.createElement('div');
-            resultItem.className = 'search-result-item';
-            resultItem.innerHTML = `
+        function displaySearchResults(sites) {
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '';
+
+            sites.forEach(site => {
+                const marker = new HWMapJsSDK.HWMarker({
+                    map: map,
+                    position: { lat: site.location.lat, lng: site.location.lng },
+                    label: site.name
+                });
+                markers.push(marker);
+
+                const resultItem = document.createElement('div');
+                resultItem.className = 'search-result-item';
+                resultItem.innerHTML = `
                 <div>${site.name}</div>
                 <div style="font-size: 12px; color: #666;">${site.formatAddress}</div>
             `;
-            resultItem.onclick = () => {
-                map.setCenter({lat: site.location.lat, lng: site.location.lng});
-                map.setZoom(15);
-            };
-            searchResults.appendChild(resultItem);
-        });
+                resultItem.onclick = () => {
+                    map.setCenter({ lat: site.location.lat, lng: site.location.lng });
+                    map.setZoom(15);
+                };
+                searchResults.appendChild(resultItem);
+            });
 
-        searchResults.style.display = 'block';
-    }
+            searchResults.style.display = 'block';
+        }
 
-    function clearMarkers() {
-        markers.forEach(marker => marker.setMap(null));
-        markers = [];
-    }
-</script>
-<script async disable-devtool-auto src="https://registry.npmmirror.com/disable-devtool/0.3.6/files/disable-devtool.min.js"></script>
+        function clearMarkers() {
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+        }
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+
+                        // Clear existing markers
+                        clearMarkers();
+
+                        // Add new marker for current location
+                        const marker = new HWMapJsSDK.HWMarker({
+                            map: map,
+                            position: pos,
+                            label: "当前位置"
+                        });
+                        markers.push(marker);
+
+                        // Center map on current location
+                        map.setCenter(pos);
+                        map.setZoom(15);
+                    },
+                    (error) => {
+                        console.error("Error getting location:", error);
+                        alert("无法获取您的位置，请确保已允许位置访问权限。");
+                    }
+                );
+            } else {
+                alert("您的浏览器不支持地理定位功能。");
+            }
+        }
+    </script>
+    <!-- <script async disable-devtool-auto src="https://registry.npmmirror.com/disable-devtool/0.3.6/files/disable-devtool.min.js"></script> -->
 </body>
 
 </html>
