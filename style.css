@@ -492,14 +492,46 @@ body {
 }
 
 @media only screen and (max-width: 768px) {
+    .container {
+        left: 10px;
+        top: 10px;
+        width: calc(100% - 20px);
+    }
+
     #searchPosition {
-        width: 200px;
-        font-size: 15px;
+        width: calc(100% - 100px);
+        min-width: 160px;
+        font-size: 14px;
+        padding: 0 35px 0 15px;
+    }
+
+    #searchPosition:focus {
+        width: calc(100% - 100px);
     }
 
     .search-container {
         width: 100%;
-        max-width: 280px;
+        max-width: none;
+        padding: 6px;
+    }
+
+    .iconfont_search {
+        width: 32px;
+        height: 32px;
+    }
+
+    .voice-search {
+        padding: 0 6px;
+    }
+
+    .clear-search {
+        padding: 0 8px;
+    }
+
+    .search-tips,
+    .search-results,
+    .hot-tags {
+        width: 100%;
     }
 
     .map-type-selector {

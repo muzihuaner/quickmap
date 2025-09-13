@@ -11,7 +11,7 @@
     <meta content="地图,快点地图,QQ地图,百度地图，高德地图,搜搜地图,web地图,pc地图,站点查询,线路查询,公交查询,中国地图,驾车导航" name="keywords" />
     <meta content="提供全国400多个城市的地图浏览、地址查询、兴趣点搜索、公交换乘、驾车导航、公交线路及站点查询等多项服务" name="description" />
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         #tp-weather-widget {
             margin-left: 10px;
@@ -19,14 +19,24 @@
             border-radius: 16px;
             padding: 8px;
             transition: all 0.3s ease;
-            width: 100%;
+            max-width: 120px;
+            width: auto;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
 
         #tp-weather-widget:hover {
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
-        }  
+        }
+
+        @media only screen and (max-width: 768px) {
+            #tp-weather-widget {
+                margin-left: 5px;
+                padding: 4px;
+                max-width: 80px;
+                font-size: 12px;
+            }
+        }
     </style>
     <script>
         (function (a, h, g, f, e, d, c, b) { b = function () { d = h.createElement(g); c = h.getElementsByTagName(g)[0]; d.src = e; d.charset = "utf-8"; d.async = 1; c.parentNode.insertBefore(d, c) }; a["SeniverseWeatherWidgetObject"] = f; a[f] || (a[f] = function () { (a[f].q = a[f].q || []).push(arguments) }); a[f].l = +new Date(); if (a.attachEvent) { a.attachEvent("onload", b) } else { a.addEventListener("load", b, false) } } (window, document, "script", "SeniverseWeatherWidget", "//cdn.sencdn.com/widget2/static/js/bundle.js?t=" + parseInt((new Date().getTime() / 100000000).toString(), 10)));
@@ -68,9 +78,6 @@
             <input type="text" placeholder="搜索地点、商家、地址..." id="searchPosition">
             <div class="loading"></div>
             <button class="clear-search" id="clearSearch">×</button>
-            <button class="voice-search" id="voiceSearch" title="语音搜索">
-                <i class="fa fa-microphone" aria-hidden="true"></i>
-            </button>
             <div id="iconfont_search" class="iconfont_search" onclick="searchByTextBtnClick()">
                 <i class="fa fa-search" aria-hidden="true"></i>
             </div>
@@ -92,7 +99,6 @@
         var markers = [];
         var searchSuggestions = ['餐厅', '酒店', '加油站', '银行', '医院', '学校', '超市', '公园', '地铁站', '公交站'];
         var hotTags = ['美食', '购物', '景点', '酒店', '银行', '医院', '学校', '加油站', '停车场', '厕所'];
-        var voiceSupported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
 
         function initMap() {
             var mapOptions = {
@@ -119,13 +125,11 @@
         function setupSearchFunctionality() {
             const searchInput = document.getElementById('searchPosition');
             const clearButton = document.getElementById('clearSearch');
-            const voiceButton = document.getElementById('voiceSearch');
             const searchResults = document.getElementById('searchResults');
             const searchTips = document.getElementById('searchTips');
             const hotTags = document.getElementById('hotTags');
             let inputTimeout;
             let selectedIndex = -1;
-            let recognition = null;
 
             // 加载搜索历史
             const savedHistory = localStorage.getItem('searchHistory');
@@ -193,16 +197,6 @@
                     items[selectedIndex].click();
                 }
             });
-
-            // 语音搜索
-            if (voiceSupported) {
-                initializeVoiceSearch();
-                voiceButton.style.display = 'flex';
-            } else {
-                voiceButton.style.display = 'none';
-            }
-
-            voiceButton.addEventListener('click', toggleVoiceSearch);
 
             // 热门标签
             initializeHotTags();
@@ -472,43 +466,7 @@
 
 
 
-        function initializeVoiceSearch() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.lang = 'zh-CN';
-            recognition.continuous = false;
-            recognition.interimResults = false;
 
-            recognition.onstart = () => {
-                voiceButton.classList.add('recording');
-                voiceButton.title = '正在录音...';
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById('searchPosition').value = transcript;
-                searchByTextBtnClick();
-            };
-
-            recognition.onend = () => {
-                voiceButton.classList.remove('recording');
-                voiceButton.title = '语音搜索';
-            };
-
-            recognition.onerror = (event) => {
-                voiceButton.classList.remove('recording');
-                voiceButton.title = '语音搜索';
-                console.error('语音识别错误:', event.error);
-            };
-        }
-
-        function toggleVoiceSearch() {
-            if (recognition && !voiceButton.classList.contains('recording')) {
-                recognition.start();
-            } else if (recognition) {
-                recognition.stop();
-            }
-        }
 
         function initializeHotTags() {
             const hotTagsContainer = document.getElementById('hotTags');
